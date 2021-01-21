@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"EntryTask/utils"
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
+	"path"
 	"strconv"
 	"time"
 )
@@ -20,4 +22,22 @@ func GetToken(src string) string {
 	h := md5.New()
 	h.Write([]byte(src + strconv.FormatInt(time.Now().Unix(), 10)))
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+// GetFileName 为上传的文件生成一个文件名.
+func GetFileName(fileName string, ext string) string {
+	h := md5.New()
+	h.Write([]byte(fileName + strconv.FormatInt(time.Now().Unix(), 10)))
+	return hex.EncodeToString(h.Sum(nil)) + ext
+}
+
+// CheckAndCreateFileName 检查文件后缀合法性.
+func CheckAndCreateFileName(oldName string) (newName string, isLegal bool) {
+	ext := path.Ext(oldName)
+	if ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" {
+		//随机生成一个文件名.
+		newName = utils.GetFileName(oldName, ext)
+		isLegal = true
+	}
+	return newName, isLegal
 }

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Msg }}</title>
+</head>
+<body>
+    <div>
+        <p>{{ .Msg }}</p>
+        <form action="/profile" method="GET">
+            <input type="submit" name="jump_btn" value="Show Profile">
+        </form>
+    </div>
+</body>

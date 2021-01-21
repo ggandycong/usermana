@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - {{ .UserName }}</title>
+</head>
+<body>
+    <div>
+        <form action="/uploadFile" method="POST" enctype="multipart/form-data">
+            <input type="text" name="username" value="{{ .UserName }}" readonly="readonly" hidden="hidden" />
+            <img src="/static/{{ .PicName }}" height="100" width="100">
+            <p><input type="file" name="image" accept="image/gif, image/jpeg" /></p> 
+            <p><input type="submit" name="change_btn" value="Change"></p>
+        </form>
+        <form action="/updateNickName" method="POST">
+            <p>Username:<input type="text" name="username" value="{{ .UserName }}" readonly="readonly" /></p>
+            <p>Nickname:<input type="text" name="nickname" value="{{ .NickName }}" maxlength="30"/> <input type="submit" name="change_btn" value="Change"></p>
+        </form>
+    </div>
+</body>

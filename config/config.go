@@ -35,5 +35,5 @@ const (
 	StaticFilePath string = "../static/"
 
 	// DefaultImagePath 默认头像.
-	DefaultImagePath string = "default.jpeg"
+	DefaultImagePath string = "andy.jpeg"
 )
