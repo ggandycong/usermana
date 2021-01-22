@@ -24,7 +24,7 @@ const (
 	// TCPServerAddr tcp server ip:port.
 	TCPServerAddr string = ":3194"
 	// TCPClientPoolSize 客户端tcp连接池大小.
-	TCPClientPoolSize int = 200
+	TCPClientPoolSize int = 2000
 
 	// HTTPServerLogPath HTTP服务日志.
 	HTTPServerLogPath string = "./log/http_server.log"

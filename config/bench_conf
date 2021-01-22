@@ -3,4 +3,4 @@ sudo sysctl -w kern.ipc.somaxconn=2048
 #系统中允许的最多文件数量 
 sudo sysctl -w kern.maxfiles=22288
 #系统打开的文件描述符(本系统默认2560), 这个设置受到maxfilesperproc和maxfiles的约束，不能大于其中任何一个。
-ulimit -n 10000
+ulimit -n 20000
