@@ -116,7 +116,7 @@ func Login(rw http.ResponseWriter, req *http.Request) {
 	if req.Method == "POST" {
 		userName := req.FormValue("username")
 		password := req.FormValue("password")
-		fmt.Printf("userName = %s, password = %s\n", userName, password)
+		//fmt.Printf("userName = %s, password = %s\n", userName, password)
 		if userName == "" || password == "" {
 			//重新登录.
 			templateLogin(rw, LoginResponse{Msg: "用户名和密码不能为空！"})
