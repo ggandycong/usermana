@@ -132,7 +132,7 @@ func main() {
 	//解析命令行参数.
 	flag.Parse()
 	//进行模拟测试.
-	elapsed := benchmarkBasicN("http://127.0.0.1:1088/updateNickName", int32(num), int32(concurrency), isRandom, ishttpPostMethod)
+	elapsed := benchmarkBasicN("http://127.0.0.1:1088/login", int32(num), int32(concurrency), isRandom, ishttpPostMethod)
 	fmt.Println("HTTP server benchmark done:")
 	fmt.Printf("\tTotal Requests(%v) - Concurrency(%v) - Random(%t) - Cost(%s) - QPS(%v/sec)\n",
 		num, concurrency, isRandom, elapsed, math.Ceil(float64(num)/(float64(elapsed)/1000000000)))

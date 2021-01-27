@@ -89,6 +89,7 @@ func LoginAuth(userName string, password string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	//连接归还到连接池中
 	defer rows.Close()
 	//从数据库中过去用户密码.
 	for rows.Next() {

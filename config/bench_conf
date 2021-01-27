@@ -4,3 +4,8 @@ sudo sysctl -w kern.ipc.somaxconn=2048
 sudo sysctl -w kern.maxfiles=22288
 #系统打开的文件描述符(本系统默认2560), 这个设置受到maxfilesperproc和maxfiles的约束，不能大于其中任何一个。
 ulimit -n 20000
+
+#重点参数 back_log  mysql的静态变量
+#mysql接收监听连接的数量back_log，需要手动设置，我的默认151.  当同时请求mysql的连接数超过back_log数量，
+#mysql会将其丢弃（从而使tcp协议栈发送rst给对方）。
+back_log = 1000
