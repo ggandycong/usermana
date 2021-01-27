@@ -194,21 +194,20 @@ redis缓存数据设计。
 
 ```bash
 usermana
-├── README.md								//程序文档
-├── benchmark								//压力测试文件
-├── config									//配置文件
-├── httpServer							//http server
-├── log											//日志相关文件	
-├── mysql										//mysql
-├── protocol								//主要定义一些通讯的数据结构
-├── redis										//redis相关文件
-├── resource								//文档所需要资源
-├── rpc											//rpc实现
-├── static									//用户头像存放路径
-├── tcpServer								//tcp server
-├── templates								//用户UI相关html
-└── utils										//相关辅助函数
-
+├── README.md               //程序文档
+├── benchmark               //压力测试文件
+├── config                  //配置文件
+├── httpServer              //http server
+├── log                     //日志相关文件	
+├── mysql                   //mysql
+├── protocol                //主要定义一些通讯的数据结构
+├── redis                   //redis相关文件
+├── resource                //文档所需要资源
+├── rpc                     //rpc实现
+├── static                  //用户头像存放路径
+├── tcpServer               //tcp server
+├── templates               //用户UI相关html
+└── utils                   //相关辅助函数
 ```
 
 ## 部署
@@ -392,14 +391,14 @@ go test
    * mysql数据库初始化一些连接配置
 
    ```go
-   	//设置mysql每个连接的生命周期，默认值0，即连接不关闭一直存在。
-     //此值的设置应该小于wait_timeout，避免连接因为超时而意外关闭。wait_timeout的默认值28800，8个小时，
-   	//ConnMaxLifetime值推荐为wait_timeout的一半，即14400，4个小时。
-   	db.SetConnMaxLifetime(config.ConnMaxLifetime)
-     //MaxIdleConns 连接池中最大空闲连接数.
-   	db.SetMaxIdleConns(config.MaxIdleConns)
-     // MaxOpenConns 同时连接数据库中最多连接数.  MaxIdleConns和MaxOpenConns最好设置一样
-   	db.SetMaxOpenConns(config.MaxOpenConns)
+   //设置mysql每个连接的生命周期，默认值0，即连接不关闭一直存在。
+   //此值的设置应该小于wait_timeout，避免连接因为超时而意外关闭。wait_timeout的默认值28800，8个小时，
+   //ConnMaxLifetime值推荐为wait_timeout的一半，即14400，4个小时。
+   db.SetConnMaxLifetime(config.ConnMaxLifetime)
+   //MaxIdleConns 连接池中最大空闲连接数.
+   db.SetMaxIdleConns(config.MaxIdleConns)
+   // MaxOpenConns 同时连接数据库中最多连接数.  MaxIdleConns和MaxOpenConns最好设置一样
+   db.SetMaxOpenConns(config.MaxOpenConns)
    ```
 
 3. 重点是**back_log**参数
