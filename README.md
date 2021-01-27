@@ -192,11 +192,11 @@ redis缓存数据设计。
 
 ## 代码结构
 
-```
+```bash
 usermana
-├── README.md              	//程序文档
+├── README.md								//程序文档
 ├── benchmark								//压力测试文件
-├── config                  //配置文件
+├── config									//配置文件
 ├── httpServer							//http server
 ├── log											//日志相关文件	
 ├── mysql										//mysql
@@ -279,19 +279,19 @@ go test
 
 #### 固定用户 200 并发
 
-> Total Requests(5000) - Concurrency(200) - Random(false) - Cost(142.563168ms) - QPS(35073/sec)
+> Total Requests(50000) - Concurrency(200) - Random(false) - Cost(2.785033353s) - QPS(17954/sec)
 
 #### 随机用户 200 并发
 
-> Total Requests(5000) - Concurrency(200) - Random(true) - Cost(136.893744ms) - QPS(36525/sec)
+> Total Requests(50000) - Concurrency(200) - Random(true) - Cost(2.934093639s) - QPS(17042/sec)
 
 #### 固定用户 2000 并发
 
-> Total Requests(5000) - Concurrency(2000) - Random(false) - Cost(391.947248ms) - QPS(12757/sec)
+> Total Requests(50000) - Concurrency(2000) - Random(false) - Cost(3.485402234s) - QPS(14346/sec)
 
 #### 随机用户 2000 并发
 
-> Total Requests(5000) - Concurrency(2000) - Random(true) - Cost(420.174593ms) - QPS(11900/sec)
+> Total Requests(50000) - Concurrency(2000) - Random(true) - Cost(4.493010268s) - QPS(11129/sec)
 
 ### profile:
 
@@ -328,4 +328,120 @@ go test
 #### 随机用户 2000 并发
 
 > Total Requests(5000) - Concurrency(2000) - Random(true) - Cost(424.903766ms) - QPS(11768/sec)
+
+## 问题总结
+
+这边整理一下遇到的问题，以及需要注意的点。
+
+1. 使用mysql/mysql_test.go去初始化数据库，插入1 000 000条数据，这个过程比较久，我在本机测试，需要90分钟。而**go test**默认最多运行10分钟，当运行大于10分钟，程序自动退出。因此为了顺利完整插入数据，可以设置**timeout**参数，指定go test运行完timeout时间后才退出。
+
+   ```bash
+   go test -timeout=120m
+   ```
+
+   表示**go test**运行时，直到完成所有测试或者到达120分钟， 程序才会退出。
+
+2. 在高并发多连接的情况下，还需要设置相关参数，比如一个进程最多允许打开的连接数，文件描述符等，还有mysql数据库连接池相关参数的设置。
+
+   * **kern.ipc.somaxconn**：表示内核最多并发连接数。默认为128，推荐在1024-4096之间，数字越大占用内存也越大。
+
+   ```bash
+   sudo sysctl -w kern.ipc.somaxconn=2048
+   ```
+
+   * **kern.maxfilesperproc**：每个进程能够同时打开的最大文件数量(根据需要灵活配置)
+
+   ```bash
+   sudo sysctl -w kern.maxfiles=65536 
+   ```
+
+   * **kern.maxfiles**:  系统中允许的最多文件数量 （根据需要灵活配置）
+
+   ```bash
+   sudo sysctl -w kern.maxfiles=22288
+   ```
+
+   * **ulimit -n**:  打开的文件描述符(本系统默认2560), 这个设置受到maxfilesperproc和maxfiles的约束，不能大于其中任何一个。
+
+   ```bash
+   ulimit -n 10000
+   ```
+
+   Note: 每个控制台都需要独立设置才生效。
+
+   * **max_connections**：数据库最多连接数， 默认是150。
+
+   通过以下sql语句查看max_connections值。 
+
+   ```sql
+   show variables like "max_connections";
+   ```
+
+   通过一下sql语句可以设置（根据需要灵活配置）
+
+   ```sql
+   set global max_connections = 2000;
+   ```
+
+   当遇到连接数超过max_connections时候，会报类似如下错误：
+
+   ```
+   err:"Error 1040: Too many connections"
+   ```
+
+   * mysql数据库初始化一些连接配置
+
+   ```go
+   	//设置mysql每个连接的生命周期，默认值0，即连接不关闭一直存在。
+     //此值的设置应该小于wait_timeout，避免连接因为超时而意外关闭。wait_timeout的默认值28800，8个小时，
+   	//ConnMaxLifetime值推荐为wait_timeout的一半，即14400，4个小时。
+   	db.SetConnMaxLifetime(config.ConnMaxLifetime)
+     //MaxIdleConns 连接池中最大空闲连接数.
+   	db.SetMaxIdleConns(config.MaxIdleConns)
+     // MaxOpenConns 同时连接数据库中最多连接数.  MaxIdleConns和MaxOpenConns最好设置一样
+   	db.SetMaxOpenConns(config.MaxOpenConns)
+   ```
+
+3. 重点是**back_log**参数
+
+   此参数影响mysql server中tcp accept队列中的连接数。 当tcp accetp队列容量超过**back_log**时候，那么mysql server将会丢弃此连接，从而导致tcp 协议栈回应一个rst包给客户端。(back_log默认值151)
+
+   客户端收到rst之后，表现类似如下:
+
+   ```
+   read tcp 127.0.0.1:55718->127.0.0.1:3306: read: connection reset by peer
+   ```
+
+   然而，在**go-sql-driver/mysql**中，客户端收到了rst包，还会继续重试maxBadConnRetries(默认2)次连接。
+
+   因此，客户端还是有很大几率连接成功并且完成请求，除非maxBadConnRetries次连接都收到了rst包。
+
+   不过，这对于整体请求来说，响应就变慢了。换言之，QPS会大大减少。
+
+   因此，我们可以修改tcp accetp队列容量，使之比mysql的连接池容量还要大，就可以避免上述问题，从而提高QPS。
+
+   tcp acctpt队列容量除了受到back_log制约，还受到系统参数kern.ipc.somaxconn的制约。
+
+   换言之，tcp acctpt队列容量 = min(back_log,  kern.ipc.somaxconn)。
+
+   back_log参数具体介绍可参考：[back_log](https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_back_log)
+
+   **back_log**变量通过如下方式查看
+
+   ```
+   show global variables like '%back_log%';
+   ```
+
+   由于back_log是静态变量，因此通过在my.cnf文件修改，如下
+
+   ```
+   [mysqld]
+   back_log = 1000
+   ```
+
+   Note: 这个主要是排查花了1天多的时间，还是没有找到问题的本质所在，最后是靠**Zhang Weiwei大佬**解决的。
+
+   具体可以参考：[MySQL出现connection reset by peer问题排查](https://confluence.shopee.io/pages/viewpage.action?pageId=375667105)
+
+   排查问题的思路也是非常值得学习。
 
