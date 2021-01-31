@@ -296,37 +296,37 @@ go test
 
 #### 固定用户 200 并发
 
-> Total Requests(5000) - Concurrency(200) - Random(false) - Cost(133.75811ms) - QPS(37381/sec)
+> Total Requests(50000) - Concurrency(200) - Random(false) - Cost(2.492745575s) - QPS(20059/sec)
 
 #### 随机用户 200 并发
 
-> Total Requests(5000) - Concurrency(200) - Random(true) - Cost(130.668901ms) - QPS(38265/sec)
+> Total Requests(50000) - Concurrency(200) - Random(true) - Cost(4.052824896s) - QPS(12338/sec)
 
 #### 固定用户 2000 并发
 
-> Total Requests(5000) - Concurrency(2000) - Random(false) - Cost(383.837833ms) - QPS(13027/sec)
+> Total Requests(50000) - Concurrency(2000) - Random(false) - Cost(3.070350174s) - QPS(16285/sec)
 
 #### 随机用户 2000 并发
 
-> Total Requests(5000) - Concurrency(2000) - Random(true) - Cost(404.677492ms) - QPS(12356/sec)
+> Total Requests(50000) - Concurrency(2000) - Random(true) - Cost(4.63655562s) - QPS(10784/sec)
 
 ### updateNickName:
 
 #### 固定用户 200 并发
 
-> Total Requests(5000) - Concurrency(200) - Random(false) - Cost(140.719206ms) - QPS(35532/sec)
+> Total Requests(50000) - Concurrency(200) - Random(false) - Cost(3.166650838s) - QPS(15790/sec)
 
 #### 随机用户 200 并发
 
-> Total Requests(5000) - Concurrency(200) - Random(true) - Cost(151.213109ms) - QPS(33066/sec)
+> Total Requests(50000) - Concurrency(200) - Random(true) - Cost(3.303067683s) - QPS(15138/sec)
 
 #### 固定用户 2000 并发
 
-> Total Requests(5000) - Concurrency(2000) - Random(false) - Cost(376.417359ms) - QPS(13284/sec)
+> Total Requests(50000) - Concurrency(2000) - Random(false) - Cost(3.834577733s) - QPS(13040/sec)
 
 #### 随机用户 2000 并发
 
-> Total Requests(5000) - Concurrency(2000) - Random(true) - Cost(424.903766ms) - QPS(11768/sec)
+> Total Requests(50000) - Concurrency(2000) - Random(true) - Cost(3.893069542s) - QPS(12844/sec)
 
 ## 问题总结
 
